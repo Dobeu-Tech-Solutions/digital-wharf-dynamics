@@ -9,6 +9,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Analytics } from "@/components/Analytics";
 import { CookieConsentBanner } from "@/components/CookieConsent";
 import { NewsletterPopup } from "@/components/NewsletterPopup";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Home from "./pages/Home";
 import Services from "./pages/Services";
 import Pricing from "./pages/Pricing";
@@ -42,7 +43,11 @@ const App = () => (
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/brand" element={<BrandKit />} />
+                <Route path="/brand" element={
+                  <ProtectedRoute>
+                    <BrandKit />
+                  </ProtectedRoute>
+                } />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
