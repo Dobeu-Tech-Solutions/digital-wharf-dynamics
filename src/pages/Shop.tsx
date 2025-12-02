@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Check, ShoppingCart } from "lucide-react";
+import { ServiceDetailModal } from "@/components/shop/ServiceDetailModal";
 
 interface Service {
   id: string;
@@ -23,6 +24,8 @@ export default function Shop() {
   const { toast } = useToast();
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchServices();
@@ -48,7 +51,20 @@ export default function Shop() {
     setLoading(false);
   };
 
-  const handlePurchase = async (serviceId: string, basePrice: number) => {
+  const openServiceModal = (service: Service) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to purchase services",
+        variant: "destructive",
+      });
+      return;
+    }
+    setSelectedService(service);
+    setIsModalOpen(true);
+  };
+
+  const handlePurchase = async (serviceId: string, totalAmount: number, selectedAddOns: any[]) => {
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -62,10 +78,10 @@ export default function Shop() {
     const { error } = await supabase.from("purchases").insert({
       user_id: user.id,
       service_id: serviceId,
-      amount: basePrice,
+      amount: totalAmount,
       payment_type: "stripe",
       status: "pending",
-      selected_add_ons: [],
+      selected_add_ons: selectedAddOns,
     });
 
     if (error) {
@@ -159,10 +175,10 @@ export default function Shop() {
               <CardFooter>
                 <Button
                   className="w-full"
-                  onClick={() => handlePurchase(service.id, service.base_price)}
+                  onClick={() => openServiceModal(service)}
                 >
                   <ShoppingCart className="mr-2 h-4 w-4" />
-                  Purchase Now
+                  View Details & Purchase
                 </Button>
               </CardFooter>
             </Card>
@@ -176,6 +192,13 @@ export default function Shop() {
             </CardContent>
           </Card>
         )}
+
+        <ServiceDetailModal
+          service={selectedService}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onPurchase={handlePurchase}
+        />
       </div>
     </div>
   );
