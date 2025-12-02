@@ -12,8 +12,53 @@ Deno.serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+    // Get authorization header for user authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Missing authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Create client with user's JWT to check their role
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Get the authenticated user
+    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser();
+    if (userError || !user) {
+      console.error('Auth error:', userError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check if user has admin role
+    const { data: roleData, error: roleError } = await supabaseAuth
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('role', 'admin')
+      .single();
+
+    if (roleError || !roleData) {
+      console.error('Role check failed:', roleError);
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: Admin access required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`Admin user ${user.id} authorized for seed-services`);
+
+    // Use service role key for inserting data
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     console.log('Starting to seed services...');
 
