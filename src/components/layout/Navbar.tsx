@@ -52,21 +52,46 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            <NavLink to="/services" className="text-sm font-medium hover:text-primary transition-colors">
-              Services
-            </NavLink>
-            <NavLink to="/pricing" className="text-sm font-medium hover:text-primary transition-colors">
-              Pricing
-            </NavLink>
-            <NavLink to="/about" className="text-sm font-medium hover:text-primary transition-colors">
-              About
-            </NavLink>
-            <NavLink to="/contact" className="text-sm font-medium hover:text-primary transition-colors">
-              Contact
-            </NavLink>
-            <NavLink to="/brand" className="text-sm font-medium hover:text-primary transition-colors">
-              Brand Kit
-            </NavLink>
+            {user ? (
+              <>
+                <NavLink to="/dashboard" className="text-sm font-medium hover:text-primary transition-colors">
+                  Dashboard
+                </NavLink>
+                <NavLink to="/dashboard/projects" className="text-sm font-medium hover:text-primary transition-colors">
+                  Projects
+                </NavLink>
+                <NavLink to="/dashboard/shop" className="text-sm font-medium hover:text-primary transition-colors">
+                  Shop
+                </NavLink>
+                <NavLink to="/dashboard/files" className="text-sm font-medium hover:text-primary transition-colors">
+                  Files
+                </NavLink>
+                <NavLink to="/newsletter" className="text-sm font-medium hover:text-primary transition-colors">
+                  Newsletter
+                </NavLink>
+                <NavLink to="/brand" className="text-sm font-medium hover:text-primary transition-colors">
+                  Brand Kit
+                </NavLink>
+              </>
+            ) : (
+              <>
+                <NavLink to="/services" className="text-sm font-medium hover:text-primary transition-colors">
+                  Services
+                </NavLink>
+                <NavLink to="/pricing" className="text-sm font-medium hover:text-primary transition-colors">
+                  Pricing
+                </NavLink>
+                <NavLink to="/about" className="text-sm font-medium hover:text-primary transition-colors">
+                  About
+                </NavLink>
+                <NavLink to="/contact" className="text-sm font-medium hover:text-primary transition-colors">
+                  Contact
+                </NavLink>
+                <NavLink to="/news" className="text-sm font-medium hover:text-primary transition-colors">
+                  News
+                </NavLink>
+              </>
+            )}
           </div>
 
           {/* Auth Buttons */}
@@ -95,41 +120,90 @@ export function Navbar() {
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden py-4 space-y-4 border-t">
-            <NavLink
-              to="/services"
-              className="block text-sm font-medium hover:text-primary transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Services
-            </NavLink>
-            <NavLink
-              to="/pricing"
-              className="block text-sm font-medium hover:text-primary transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Pricing
-            </NavLink>
-            <NavLink
-              to="/about"
-              className="block text-sm font-medium hover:text-primary transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              About
-            </NavLink>
-            <NavLink
-              to="/contact"
-              className="block text-sm font-medium hover:text-primary transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Contact
-            </NavLink>
-            <NavLink
-              to="/brand"
-              className="block text-sm font-medium hover:text-primary transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Brand Kit
-            </NavLink>
+            {user ? (
+              <>
+                <NavLink
+                  to="/dashboard"
+                  className="block text-sm font-medium hover:text-primary transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Dashboard
+                </NavLink>
+                <NavLink
+                  to="/dashboard/projects"
+                  className="block text-sm font-medium hover:text-primary transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Projects
+                </NavLink>
+                <NavLink
+                  to="/dashboard/shop"
+                  className="block text-sm font-medium hover:text-primary transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Shop
+                </NavLink>
+                <NavLink
+                  to="/dashboard/files"
+                  className="block text-sm font-medium hover:text-primary transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Files
+                </NavLink>
+                <NavLink
+                  to="/newsletter"
+                  className="block text-sm font-medium hover:text-primary transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Newsletter
+                </NavLink>
+                <NavLink
+                  to="/brand"
+                  className="block text-sm font-medium hover:text-primary transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Brand Kit
+                </NavLink>
+              </>
+            ) : (
+              <>
+                <NavLink
+                  to="/services"
+                  className="block text-sm font-medium hover:text-primary transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Services
+                </NavLink>
+                <NavLink
+                  to="/pricing"
+                  className="block text-sm font-medium hover:text-primary transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Pricing
+                </NavLink>
+                <NavLink
+                  to="/about"
+                  className="block text-sm font-medium hover:text-primary transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  About
+                </NavLink>
+                <NavLink
+                  to="/contact"
+                  className="block text-sm font-medium hover:text-primary transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Contact
+                </NavLink>
+                <NavLink
+                  to="/news"
+                  className="block text-sm font-medium hover:text-primary transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  News
+                </NavLink>
+              </>
+            )}
             <div className="pt-4 border-t">
               {user ? (
                 <Button onClick={handleLogout} variant="outline" size="sm" className="w-full">

@@ -19,6 +19,12 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import Dashboard from "./pages/Dashboard";
+import Projects from "./pages/Projects";
+import Shop from "./pages/Shop";
+import Files from "./pages/Files";
+import News from "./pages/News";
+import Newsletter from "./pages/Newsletter";
 import { BrandKit } from "@/components/brand/BrandKit";
 
 const queryClient = new QueryClient();
@@ -43,6 +49,32 @@ const App = () => (
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/news" element={<News />} />
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard/projects" element={
+                  <ProtectedRoute>
+                    <Projects />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard/shop" element={
+                  <ProtectedRoute>
+                    <Shop />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard/files" element={
+                  <ProtectedRoute>
+                    <Files />
+                  </ProtectedRoute>
+                } />
+                <Route path="/newsletter" element={
+                  <ProtectedRoute>
+                    <Newsletter />
+                  </ProtectedRoute>
+                } />
                 <Route path="/brand" element={
                   <ProtectedRoute>
                     <BrandKit />
