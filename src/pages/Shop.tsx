@@ -64,7 +64,7 @@ export default function Shop() {
     setIsModalOpen(true);
   };
 
-  const handlePurchase = async (serviceId: string, totalAmount: number, selectedAddOns: any[]) => {
+  const handlePurchase = async (serviceId: string, totalAmount: number, selectedAddOns: any[], serviceName: string, isSubscription: boolean) => {
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -74,31 +74,37 @@ export default function Shop() {
       return;
     }
 
-    // Create purchase record
-    const { error } = await supabase.from("purchases").insert({
-      user_id: user.id,
-      service_id: serviceId,
-      amount: totalAmount,
-      payment_type: "stripe",
-      status: "pending",
-      selected_add_ons: selectedAddOns,
+    toast({
+      title: "Processing",
+      description: "Redirecting to checkout...",
     });
 
-    if (error) {
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: {
+          serviceId,
+          serviceName,
+          totalAmount,
+          selectedAddOns,
+          isSubscription,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (error: any) {
+      console.error("Checkout error:", error);
       toast({
         title: "Error",
-        description: "Failed to create purchase. Please try again.",
+        description: error.message || "Failed to create checkout. Please try again.",
         variant: "destructive",
       });
-      return;
     }
-
-    toast({
-      title: "Purchase Initiated",
-      description: "Redirecting to payment...",
-    });
-
-    // TODO: Integrate with Stripe when ready
   };
 
   const getCategoryColor = (category: string) => {
@@ -142,7 +148,17 @@ export default function Shop() {
               </CardHeader>
               <CardContent className="flex-1 space-y-4">
                 <div className="text-3xl font-bold text-primary">
-                  ${service.base_price.toLocaleString()}
+                  {service.base_price > 0 ? (
+                    service.category.toLowerCase() === "consulting" ? (
+                      `$${service.base_price}/hr`
+                    ) : service.category.toLowerCase() === "retainer" ? (
+                      `$${service.base_price.toLocaleString()}/mo`
+                    ) : (
+                      `$${service.base_price.toLocaleString()}`
+                    )
+                  ) : (
+                    <span className="text-lg">Contact for Quote</span>
+                  )}
                 </div>
                 
                 {service.features && service.features.length > 0 && (
@@ -178,7 +194,7 @@ export default function Shop() {
                   onClick={() => openServiceModal(service)}
                 >
                   <ShoppingCart className="mr-2 h-4 w-4" />
-                  View Details & Purchase
+                  {service.base_price > 0 ? "View Details & Purchase" : "View Details & Contact"}
                 </Button>
               </CardFooter>
             </Card>
@@ -197,7 +213,9 @@ export default function Shop() {
           service={selectedService}
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          onPurchase={handlePurchase}
+          onPurchase={(serviceId, totalAmount, selectedAddOns) => 
+            handlePurchase(serviceId, totalAmount, selectedAddOns, selectedService?.name || "", selectedService?.category.toLowerCase() === "retainer")
+          }
         />
       </div>
     </div>

@@ -3,7 +3,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Check, ShoppingCart } from "lucide-react";
+import { Check, ShoppingCart, MessageCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface AddOn {
   name: string;
@@ -30,8 +31,13 @@ interface ServiceDetailModalProps {
 
 export function ServiceDetailModal({ service, isOpen, onClose, onPurchase }: ServiceDetailModalProps) {
   const [selectedAddOns, setSelectedAddOns] = useState<Set<number>>(new Set());
+  const navigate = useNavigate();
 
   if (!service) return null;
+
+  const isContactOnly = service.base_price === 0;
+  const isConsulting = service.category.toLowerCase() === "consulting";
+  const isRetainer = service.category.toLowerCase() === "retainer";
 
   const toggleAddOn = (index: number) => {
     const newSelected = new Set(selectedAddOns);
@@ -49,6 +55,11 @@ export function ServiceDetailModal({ service, isOpen, onClose, onPurchase }: Ser
       total += service.add_ons[index].price;
     });
     return total;
+  };
+
+  const handleContact = () => {
+    onClose();
+    navigate("/contact");
   };
 
   const handlePurchase = () => {
@@ -122,24 +133,46 @@ export function ServiceDetailModal({ service, isOpen, onClose, onPurchase }: Ser
             </div>
           )}
 
-          <div className="border-t pt-6">
-            <div className="flex items-center justify-between text-lg">
-              <span className="font-semibold">Total Price:</span>
-              <span className="text-2xl font-bold text-primary">
-                ${calculateTotal().toLocaleString()}
-              </span>
+          {!isContactOnly && (
+            <div className="border-t pt-6">
+              <div className="flex items-center justify-between text-lg">
+                <span className="font-semibold">Total Price:</span>
+                <span className="text-2xl font-bold text-primary">
+                  {isConsulting 
+                    ? `$${calculateTotal().toLocaleString()}/hr`
+                    : isRetainer 
+                      ? `$${calculateTotal().toLocaleString()}/mo`
+                      : `$${calculateTotal().toLocaleString()}`
+                  }
+                </span>
+              </div>
             </div>
-          </div>
+          )}
+
+          {isContactOnly && (
+            <div className="border-t pt-6">
+              <p className="text-muted-foreground text-center">
+                Contact us for a custom quote tailored to your specific needs.
+              </p>
+            </div>
+          )}
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handlePurchase}>
-            <ShoppingCart className="mr-2 h-4 w-4" />
-            Purchase Now
-          </Button>
+          {isContactOnly ? (
+            <Button onClick={handleContact}>
+              <MessageCircle className="mr-2 h-4 w-4" />
+              Contact Us
+            </Button>
+          ) : (
+            <Button onClick={handlePurchase}>
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              {isRetainer ? "Subscribe Now" : "Purchase Now"}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
