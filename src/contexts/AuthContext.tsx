@@ -144,7 +144,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resendVerificationEmail = async () => {
     if (!user?.email) {
-      return { error: { message: 'No email address found' } };
+      return { error: new Error('No email address found') };
     }
 
     const { error } = await supabase.auth.resend({
