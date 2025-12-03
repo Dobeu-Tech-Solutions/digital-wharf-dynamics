@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 
 interface NavigationContextType {
@@ -44,6 +44,15 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const addRecentPage = useCallback((path: string) => {
+    setRecentPages((prev) => {
+      const filtered = prev.filter((p) => p !== path);
+      const updated = [path, ...filtered].slice(0, MAX_RECENT_PAGES);
+      localStorage.setItem(STORAGE_KEY_RECENT, JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
   useEffect(() => {
     setIsMobileMenuOpen(false);
     setNavigationHistory((prev) => [...prev, location.pathname]);
@@ -51,16 +60,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     if (location.pathname !== "/" && !location.pathname.startsWith("/auth")) {
       addRecentPage(location.pathname);
     }
-  }, [location.pathname]);
-
-  const addRecentPage = (path: string) => {
-    setRecentPages((prev) => {
-      const filtered = prev.filter((p) => p !== path);
-      const updated = [path, ...filtered].slice(0, MAX_RECENT_PAGES);
-      localStorage.setItem(STORAGE_KEY_RECENT, JSON.stringify(updated));
-      return updated;
-    });
-  };
+  }, [location.pathname, addRecentPage]);
 
   const toggleFavorite = (path: string) => {
     setFavorites((prev) => {
